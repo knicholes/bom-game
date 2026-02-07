@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>In the Den of Laban</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-light: #1f2937;
+      --ink: #f9fafb;
+      --muted: #cbd5f5;
+      --accent: #fbbf24;
+      --accent-2: #38bdf8;
+      --danger: #f87171;
+      --success: #34d399;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #1e293b, var(--bg));
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 32px 16px 16px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 6px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--accent);
+    }
+
+    header p {
+      margin: 0 auto;
+      max-width: 720px;
+      color: var(--muted);
+      font-size: 1.05rem;
+    }
+
+    main {
+      flex: 1;
+      display: grid;
+      gap: 20px;
+      padding: 16px;
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: 20px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      color: var(--accent-2);
+    }
+
+    .scene-text {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .choices {
+      display: grid;
+      gap: 12px;
+    }
+
+    .choice-btn {
+      background: var(--panel-light);
+      color: var(--ink);
+      border: 2px solid transparent;
+      padding: 12px 14px;
+      border-radius: 14px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 1rem;
+      transition: border 0.2s ease, transform 0.2s ease;
+    }
+
+    .choice-btn:hover,
+    .choice-btn:focus-visible {
+      border-color: var(--accent-2);
+      transform: translateY(-2px);
+    }
+
+    .status-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .status-card {
+      background: var(--panel-light);
+      border-radius: 16px;
+      padding: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .status-card h3 {
+      margin: 0 0 6px;
+      font-size: 1rem;
+      color: var(--accent);
+    }
+
+    .inventory {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .inventory span {
+      background: rgba(56, 189, 248, 0.2);
+      color: var(--muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .badge.success {
+      background: rgba(52, 211, 153, 0.2);
+      color: var(--success);
+    }
+
+    .badge.warning {
+      background: rgba(248, 113, 113, 0.2);
+      color: var(--danger);
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .control-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--accent);
+      color: #1f2937;
+      transition: transform 0.2s ease;
+    }
+
+    .control-btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--ink);
+    }
+
+    .control-btn:hover,
+    .control-btn:focus-visible {
+      transform: translateY(-2px);
+    }
+
+    .log {
+      font-size: 0.95rem;
+      color: var(--muted);
+      max-height: 160px;
+      overflow-y: auto;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px 16px 32px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>In the Den of Laban</h1>
+    <p>
+      A King’s Quest-style adventure for kids: You are Nephi. Sneak into Laban’s house,
+      gather clues, and recover the brass plates.
+    </p>
+  </header>
+
+  <main>
+    <section class="layout">
+      <div class="panel" aria-live="polite">
+        <h2 id="sceneTitle">The City Gates</h2>
+        <p class="scene-text" id="sceneText"></p>
+        <div class="choices" id="choices"></div>
+        <div class="controls">
+          <button class="control-btn" id="restartBtn" type="button">Restart Quest</button>
+          <button class="control-btn secondary" id="hintBtn" type="button">Need a Hint?</button>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <div class="status-grid">
+          <div class="status-card">
+            <h3>Quest Goal</h3>
+            <p>Retrieve the brass plates and return safely to your family.</p>
+          </div>
+          <div class="status-card">
+            <h3>Faith Meter</h3>
+            <div id="faithBadge" class="badge success">Steady &amp; Strong</div>
+          </div>
+          <div class="status-card">
+            <h3>Inventory</h3>
+            <div class="inventory" id="inventory"></div>
+          </div>
+          <div class="status-card">
+            <h3>Journey Log</h3>
+            <div class="log" id="log"></div>
+          </div>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer>
+    Make kind choices, listen for promptings, and remember Nephi’s courage.
+  </footer>
+
+  <script>
+    const scenes = {
+      gates: {
+        title: "The City Gates",
+        text:
+          "You step into Jerusalem at night. The streets are quiet. You remember the Lord's command to get the brass plates. Where do you go first?",
+        choices: [
+          { label: "Head toward Laban's house", next: "courtyard", add: "Courage" },
+          { label: "Pray quietly for guidance", next: "prayer", add: "Peace" }
+        ]
+      },
+      prayer: {
+        title: "A Quiet Prayer",
+        text:
+          "You kneel and pray. A calm feeling fills you. You feel impressed to move forward with faith.",
+        choices: [
+          { label: "Walk toward Laban's house", next: "courtyard", add: "Prompting" }
+        ]
+      },
+      courtyard: {
+        title: "Laban's Courtyard",
+        text:
+          "You arrive near Laban's home. The gate is slightly open. You see guards asleep and a dim light inside.",
+        choices: [
+          { label: "Slip through the open gate", next: "hall", add: "Stealth" },
+          { label: "Look for a disguise", next: "closet", add: "Cloak" }
+        ]
+      },
+      closet: {
+        title: "Supply Closet",
+        text:
+          "You find a spare cloak and a servant's belt. You can move with less attention now.",
+        choices: [
+          { label: "Enter the hall with your disguise", next: "hall", add: "Disguise" }
+        ]
+      },
+      hall: {
+        title: "The Hallway",
+        text:
+          "Inside, you see Laban asleep. The brass plates are on a table nearby. The room is quiet.",
+        choices: [
+          { label: "Pick up the plates quickly", next: "plates", add: "Plates" },
+          { label: "Listen for a servant to help", next: "servant", add: "Help" }
+        ]
+      },
+      servant: {
+        title: "The Faithful Servant",
+        text:
+          "A servant appears. You speak kindly and explain your mission. He agrees to help guide you out.",
+        choices: [
+          { label: "Collect the plates together", next: "plates", add: "Friend" }
+        ]
+      },
+      plates: {
+        title: "The Brass Plates",
+        text:
+          "You carefully lift the plates. They are heavy, but you feel strengthened. Now you must leave safely.",
+        choices: [
+          { label: "Exit through the side gate", next: "escape", add: "Wisdom" },
+          { label: "Return the way you came", next: "escape", add: "Confidence" }
+        ]
+      },
+      escape: {
+        title: "Safe Return",
+        text:
+          "You make it out of Jerusalem with the plates! Your family will now have the scriptures. Well done, Nephi.",
+        choices: [
+          { label: "Play again", next: "gates", reset: true }
+        ]
+      }
+    };
+
+    const inventory = new Set(["Prayer", "Map"]);
+    const logEntries = [];
+    let faith = 3;
+
+    const sceneTitle = document.getElementById("sceneTitle");
+    const sceneText = document.getElementById("sceneText");
+    const choices = document.getElementById("choices");
+    const inventoryEl = document.getElementById("inventory");
+    const logEl = document.getElementById("log");
+    const faithBadge = document.getElementById("faithBadge");
+    const restartBtn = document.getElementById("restartBtn");
+    const hintBtn = document.getElementById("hintBtn");
+
+    const hints = {
+      gates: "Remember Nephi's courage. A prayer can help you decide.",
+      prayer: "After praying, move forward with faith.",
+      courtyard: "Stealth and preparation keep you safe.",
+      closet: "Disguises can help you avoid trouble.",
+      hall: "Be quick and respectful. The plates are close.",
+      servant: "Kind words can make a friend.",
+      plates: "Choose a calm path to escape.",
+      escape: "Celebrate and restart if you want another adventure."
+    };
+
+    const updateInventory = () => {
+      inventoryEl.innerHTML = "";
+      Array.from(inventory).forEach((item) => {
+        const badge = document.createElement("span");
+        badge.textContent = item;
+        inventoryEl.appendChild(badge);
+      });
+    };
+
+    const updateLog = () => {
+      logEl.innerHTML = logEntries.map((entry) => `<div>• ${entry}</div>`).join("");
+      logEl.scrollTop = logEl.scrollHeight;
+    };
+
+    const updateFaith = () => {
+      if (faith >= 3) {
+        faithBadge.className = "badge success";
+        faithBadge.textContent = "Steady & Strong";
+      } else {
+        faithBadge.className = "badge warning";
+        faithBadge.textContent = "Stay Brave";
+      }
+    };
+
+    const renderScene = (key) => {
+      const scene = scenes[key];
+      if (!scene) return;
+
+      sceneTitle.textContent = scene.title;
+      sceneText.textContent = scene.text;
+      choices.innerHTML = "";
+
+      scene.choices.forEach((choice) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "choice-btn";
+        button.textContent = choice.label;
+        button.addEventListener("click", () => handleChoice(choice));
+        choices.appendChild(button);
+      });
+
+      hintBtn.dataset.scene = key;
+    };
+
+    const handleChoice = (choice) => {
+      if (choice.reset) {
+        inventory.clear();
+        inventory.add("Prayer");
+        inventory.add("Map");
+        logEntries.length = 0;
+        faith = 3;
+      }
+
+      if (choice.add) {
+        inventory.add(choice.add);
+        logEntries.push(`You gained: ${choice.add}.`);
+      }
+
+      if (choice.next === "escape") {
+        logEntries.push("You returned to your family with the plates.");
+      }
+
+      faith = Math.min(4, faith + 1);
+      updateInventory();
+      updateLog();
+      updateFaith();
+      renderScene(choice.next);
+    };
+
+    restartBtn.addEventListener("click", () => {
+      inventory.clear();
+      inventory.add("Prayer");
+      inventory.add("Map");
+      logEntries.length = 0;
+      faith = 3;
+      updateInventory();
+      updateLog();
+      updateFaith();
+      renderScene("gates");
+    });
+
+    hintBtn.addEventListener("click", () => {
+      const sceneKey = hintBtn.dataset.scene;
+      const hint = hints[sceneKey] || "Keep going with faith.";
+      logEntries.push(`Hint: ${hint}`);
+      updateLog();
+    });
+
+    updateInventory();
+    updateLog();
+    updateFaith();
+    renderScene("gates");
+  </script>
+</body>
+</html>
